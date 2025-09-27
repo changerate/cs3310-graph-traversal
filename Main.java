@@ -1,7 +1,8 @@
-public class GraphTravelerTest {
+public class Main {
     public static void main(String[] args) {
         GraphTraveler traveler = new GraphTraveler();
-        
-        traveler.digestAllGraphsFromFile("SampleInput.txt");
+
+        traveler.travelMultipleGraphs("SampleInput.txt");
+
     }
 }
