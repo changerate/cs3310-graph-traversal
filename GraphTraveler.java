@@ -297,7 +297,7 @@ public class GraphTraveler {
      * and processes multiple graphs from the input file.
      * @param args Command-line arguments:
      *             - If provided, args[0] should be the input filename.
-     *             - If not provided, a default filename ("SampleInput.txt") is used.
+     *             - If not provided, a default filename ("input1.txt") is used.
      * @return void
      */
     public static void main(String[] args) {
@@ -305,7 +305,7 @@ public class GraphTraveler {
         String filename;
 
         if (args.length == 0) {
-            filename = "SampleInput.txt";
+            filename = "input1.txt";
         }
         else filename = args[0];
 
