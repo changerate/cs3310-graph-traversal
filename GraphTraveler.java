@@ -18,30 +18,36 @@ public class GraphTraveler {
     private Map<Integer, List<Integer>> adjacencySearchList = new HashMap<>();
     private ArrayList<ArrayList<Integer>> clusters = new ArrayList<>();    
 
-    //----------------------------------------
+    //------------------------------------------------------------
     // SETTER FUNCTIONS 
-    //----------------------------------------
+    //------------------------------------------------------------
     
-    // TODO: make a method header 
+    /**
+     * Sets the number of nodes in the current graph.
+     * @param numNodes the total number of nodes/vertices in the graph
+     */
     private void setNumNodes(int numNodes) {
         this.numNodes = numNodes;
     }
     
 
-    // TODO: make a method header 
-    private void setClusters(ArrayList<ArrayList<Integer>> clusters) {
-        this.clusters = clusters;
-    }
-    
-
-    // TODO: make a method header 
+    /**
+     * Creates empty lists for each node (key) numbered from 1 to numNodes.
+     * @param numNodes the total number of nodes in the graph
+     */
     private void buildEmptyAdjacencyList(int numNodes) {
         for (int i = 1; i <= numNodes; i++) {
             adjacencySearchList.put(i, new ArrayList<>());
         }
     }
 
-    
+
+    /**
+     * Adds a pair of connected nodes (aka verteces) to the adjacency list.
+     * Since the graph is undirected, both nodes are added to each other's adjacency lists.
+     * Prevents duplicate entries by checking if the connection already exists.
+     * @param pairArray an array of size 2 containing the two connected nodes
+     */
     private void addPairsToAdjacencySearchList(int[] pairArray) {
         // ADD THE RIGHT NUMBER TO THE ADJACENCY LIST OF THE LEFT NUMBER
         // first check if it's already there
@@ -57,22 +63,36 @@ public class GraphTraveler {
     }
 
     
-    //----------------------------------------
-    // GET FUNCTIONS 
-    //----------------------------------------
 
-    // TODO: make a method header 
+
+    
+    //------------------------------------------------------------
+    // GET FUNCTIONS 
+    //------------------------------------------------------------
+
+    /**
+     * Gets the number of nodes in the current graph.
+     * @return the total number of nodes/vertices in the graph
+     */
     public int getNumNodes() {
         return numNodes;
     }
     
-    // TODO: make a method header 
+    /**
+     * Gets the clusters found in the current graph.
+     * Each cluster represents a connected component of the graph.
+     * @return a 2D ArrayList where each inner list contains the nodes in one cluster
+     */
     public ArrayList<ArrayList<Integer>> getClusters() {
         return clusters;
     }
     
     
-    // TODO: make a method header 
+    /**
+     * Gets the adjacency list representation of the current graph.
+     * Maps each node to a list of its adjacent (connected) nodes.
+     * @return a HashMap where keys are nodes and values are lists of connected nodes
+     */
     public Map<Integer, List<Integer>> getAdjacencySearchList() {
         return adjacencySearchList;
     }
@@ -80,19 +100,31 @@ public class GraphTraveler {
     
     
     
-    
-    
-    //----------------------------------------
-    // UTILITY FUNCTIONS 
-    //----------------------------------------
 
     
-    // TODO: make a method header
+    
+    //------------------------------------------------------------
+    // UTILITY FUNCTIONS 
+    //------------------------------------------------------------
+
+    
+    /**
+     * Reads the entire contents of a file and returns it as a string.
+     * I've built this so that I can read the file, and then deal with 
+     * each graph one at a time.
+     * @param filename the path to the file to be read
+     * @return the complete file contents as a string
+     * @throws IOException if an I/O error occurs while reading the file
+     */
     private String saveInputFileAsString(String filename) throws IOException {
         return Files.readString(Paths.get(filename));
     }
 
-
+    /**
+     * Parses a string representation of a graph (a g-string) and builds the adjacency list representation.
+     * The graph string should start with the number of nodes, followed by pairs like "(1,2)".
+     * @param graphString a string containing graph data in the format: "numNodes (node1,node2) ..."
+     */
     private void makeAdjacencyList(String graphString) {
         Scanner scanner = new Scanner(graphString);
         
@@ -110,7 +142,7 @@ public class GraphTraveler {
         
         while (pairsToParse) {
             try {
-                stringPair = scanner.next();
+                stringPair = scanner.next(); // this gives "(#,#)"
                 int[] pairArray = stringPairToIntPair(stringPair);
                 addPairsToAdjacencySearchList(pairArray);
             } catch (NoSuchElementException | NumberFormatException e) {
@@ -118,14 +150,16 @@ public class GraphTraveler {
             }
         }
         
-        // System.out.println(getAdjacencySearchList());
         scanner.close();
     }
 
     
-
-    // TODO: make a method header
-    // Parses a string pair like "(1,2)" and returns a fixed-size int array of length 2
+    /**
+     * Parses a string pair like "(1,2)" and returns a fixed-size int array of length 2.
+     * Removes parentheses and splits the string on comma to extract the two integers.
+     * @param stringPair a string in the format "(num1,num2)" representing a node pair
+     * @return an integer array of size 2 containing the two parsed numbers
+     */
     private int[] stringPairToIntPair(String stringPair) {
         stringPair = stringPair.replace("(", "").replace(")", "");
         String[] parts = stringPair.split(",");
@@ -136,6 +170,10 @@ public class GraphTraveler {
     }
 
 
+    /**
+     * Resets all mutable instance variables to their initial empty state.
+     * Clears numNodes, all clusters, and the adjacency list map.
+     */
     private void clearVars() {
         setNumNodes(0);        
         for (ArrayList<Integer> inner : clusters) {
@@ -146,6 +184,10 @@ public class GraphTraveler {
     }
 
 
+    /**
+     * Prints all clusters to standard output in a readable format.
+     * Each cluster is printed as a sorted set of nodes, for example: {1,2,5} {3,4}
+     */
     private void printClusters() {
         System.out.print("Clusters in this graph: ");
         for (ArrayList<Integer> cluster : clusters) {
@@ -165,10 +207,19 @@ public class GraphTraveler {
 
 
 
-    //----------------------------------
-    // FINDING THE CLUSTERS 
-    //----------------------------------
 
+
+    //------------------------------------------------------------
+    // FINDING THE CLUSTERS 
+    //------------------------------------------------------------
+
+    /**
+     * This uses DFS.
+     * Recursively traverses connected nodes, adding them to the current cluster.
+     * Visits each node's neighbors and removes visited nodes from the adjacency list.
+     * @param nodes the list of neighbor nodes to explore from the current frontier
+     * @param currentCluster the accumulating list representing the current cluster
+     */
     private void recursivelyAddChildNodes(List<Integer> nodes, ArrayList<Integer> currentCluster) {
         for (int node : nodes) {
             List<Integer> childNodes = adjacencySearchList.get(node);
@@ -182,6 +233,11 @@ public class GraphTraveler {
     }
 
     
+    /**
+     * Finds all clusters (connected components) in the current graph.
+     * Iterates through all vertices, launching a DFS from unvisited nodes to build clusters.
+     * Utilizes the classes adjacencySearchList and clusters
+     */
     private void findClustersInGraph() {
         for (int vertex = 1; vertex <= numNodes; vertex++) {
             List<Integer> childNodes = adjacencySearchList.get(vertex);
@@ -201,12 +257,17 @@ public class GraphTraveler {
     
 
 
-    //----------------------------------------
+    //------------------------------------------------------------
     // THE MAIN IDEA 
-    //----------------------------------------
+    //------------------------------------------------------------
     
+    /**
+     * Reads multiple graphs from an input file and processes each one.
+     * For each line in the file, builds the adjacency list, finds clusters, and prints them.
+     * @param filename the path to the input file containing one graph per line
+     */
     public void travelMultipleGraphs(String filename) {
-        // FIRST TURN THE FILE INTO A STRING FOR SOME REASON??? i forgot 
+        // FIRST TURN THE FILE INTO A STRING 
         String graphsAsString = "";
         try {
             graphsAsString = saveInputFileAsString("SampleInput.txt");
@@ -215,10 +276,10 @@ public class GraphTraveler {
         }
         
         // SECOND, TRAVERSE EACH GRAPH
-        String[] lines = graphsAsString.split("\\R");
+        String[] lines = graphsAsString.split("\\R"); // split into array at newlines
         for (String singleGraphString : lines) {
             System.out.println("\n\nTraveling this graph: " + singleGraphString);
-            clearVars(); // This resets the class vars to original empty values
+            clearVars(); // Ensures we're building from a clean slate
             makeAdjacencyList(singleGraphString);
             findClustersInGraph();               
             printClusters();
