@@ -4,8 +4,10 @@
 /* CS 3310, Fall 2025                                                       */
 /* Programming Assignment 1                                                 */
 /* Graph traveler class: traverses an undirected, unweighted graph.         */
-/* Purpose: finds the 'clusters' – the parts o fthe graph that go together  */
+/* Purpose: finds the 'clusters' – the parts of the graph that go together  */
 /****************************************************************************/
+
+
 
 import java.util.*;
 import java.io.*;
@@ -91,7 +93,7 @@ public class GraphTraveler {
     }
 
 
-    public void makeAdjacencyList(String graphString) {
+    private void makeAdjacencyList(String graphString) {
         Scanner scanner = new Scanner(graphString);
         
         // get the number of nodes by getting the first integer of the line
@@ -144,50 +146,21 @@ public class GraphTraveler {
     }
 
 
+    private void printClusters() {
+        System.out.print("Clusters in this graph: ");
+        for (ArrayList<Integer> cluster : clusters) {
+            Collections.sort(cluster);
+            int clusterSize = cluster.size();
 
-    // // TODO: make a method header 
-    // // this method does not deal with wrong formatting gracefully 
-    // public void digestAllGraphsFromFile(String filename) {
-    //     try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
-    //         String line = br.readLine();
-    //         if (line == null) return;
-    //         Scanner scanner = new Scanner(line);
-            
-    //         // Loop over each line in the file 
-    //         while (true) {
-    //             // get the number of nodes by getting the first integer of the file
-    //             int fileNumNodes = scanner.nextInt();
-    //             setNumNodes(fileNumNodes);
-    //             System.out.println("Numnodes: " + getNumNodes());
-                
-    //             // now set the number of nodes in the map 
-    //             buildEmptyAdjacencyList(numNodes);
-                
-    //             // now fill out each vertex with it's adjacent nodes
-    //             String stringPair = "";
-    //             boolean pairsToParse = true;
-                
-    //             while (pairsToParse) {
-    //                 try {
-    //                     stringPair = scanner.next();
-    //                     int[] pairArray = stringPairToIntPair(stringPair);
-    //                     addPairsToAdjacencySearchList(pairArray);
-    //                 } catch (NoSuchElementException | NumberFormatException e) {
-    //                     pairsToParse = false;
-    //                 }
-    //             }
-                
-    //             // System.out.println(getAdjacencySearchList());
-                
-    //             line = br.readLine();
-    //             if (line == null) break;
-    //             scanner = new Scanner(line);
-    //         }
-    //         scanner.close();
-    //     } catch (IOException e) {
-    //         System.err.println("Error reading file: " + e.getMessage());
-    //     }
-    // }
+            for (int nodeIndex = 0; nodeIndex < clusterSize; nodeIndex++) {
+                if (nodeIndex == 0) {System.out.printf("{");}
+                System.out.print(cluster.get(nodeIndex));
+                if (nodeIndex == clusterSize - 1) {System.out.print("} ");}
+                else {System.out.print(",");}
+            }
+        }
+        System.out.println();
+    }
 
 
 
@@ -225,6 +198,8 @@ public class GraphTraveler {
     }
     
 
+    
+
 
     //----------------------------------------
     // THE MAIN IDEA 
@@ -242,12 +217,11 @@ public class GraphTraveler {
         // SECOND, TRAVERSE EACH GRAPH
         String[] lines = graphsAsString.split("\\R");
         for (String singleGraphString : lines) {
-            
             System.out.println("\n\nTraveling this graph: " + singleGraphString);
-            clearVars(); // This resets the class vars to nulls
+            clearVars(); // This resets the class vars to original empty values
             makeAdjacencyList(singleGraphString);
             findClustersInGraph();               
-            System.out.println("Clusters:   " + getClusters() + "\n");
+            printClusters();
         }
     }    
 }
