@@ -10,13 +10,17 @@
 
 
 import java.util.*;
-import java.io.*;
 import java.nio.file.*;
 
 public class GraphTraveler {
+    /** The total number of nodes/vertices in the current graph being processed */
     private int numNodes; 
+    
+    /** Adjacency list representation mapping each node ID to its list of connected neighbors */
     private Map<Integer, List<Integer>> adjacencySearchList = new HashMap<>();
-    private ArrayList<ArrayList<Integer>> clusters = new ArrayList<>();    
+    
+    /** Collection of all clusters (connected components) found in the graph, where each inner ArrayList represents one cluster */
+    private ArrayList<ArrayList<Integer>> clusters = new ArrayList<>();
 
     //------------------------------------------------------------
     // SETTER FUNCTIONS 
@@ -44,7 +48,8 @@ public class GraphTraveler {
 
     /**
      * Adds a pair of connected nodes (aka verteces) to the adjacency list.
-     * Since the graph is undirected, both nodes are added to each other's adjacency lists.
+     * Since the graph is undirected, both nodes are added to each other's 
+     * adjacency lists.
      * Prevents duplicate entries by checking if the connection already exists.
      * @param pairArray an array of size 2 containing the two connected nodes
      */
@@ -65,7 +70,7 @@ public class GraphTraveler {
     
 
 
-    
+
     //------------------------------------------------------------
     // GET FUNCTIONS 
     //------------------------------------------------------------
@@ -99,45 +104,36 @@ public class GraphTraveler {
     
     
     
-    
 
-    
     
     //------------------------------------------------------------
     // UTILITY FUNCTIONS 
     //------------------------------------------------------------
 
-    
     /**
-     * Reads the entire contents of a file and returns it as a string.
-     * I've built this so that I can read the file, and then deal with 
-     * each graph one at a time.
-     * @param filename the path to the file to be read
-     * @return the complete file contents as a string
-     * @throws IOException if an I/O error occurs while reading the file
-     */
-    private String saveInputFileAsString(String filename) throws IOException {
-        return Files.readString(Paths.get(filename));
-    }
-
-    /**
-     * Parses a string representation of a graph (a g-string) and builds the adjacency list representation.
-     * The graph string should start with the number of nodes, followed by pairs like "(1,2)".
-     * @param graphString a string containing graph data in the format: "numNodes (node1,node2) ..."
+     * Parses a string representation of a graph (a g-string) and 
+     * builds the adjacency list representation.
+     * The graph string should start with the number of nodes, 
+     * followed by pairs like "(1,2)".
+     * @param graphString a string containing graph data in 
+     * the format: "numNodes (node1,node2) ..."
      */
     private void makeAdjacencyList(String graphString) {
+        /** Scanner to parse tokens from the graph string input */
         Scanner scanner = new Scanner(graphString);
         
         // get the number of nodes by getting the first integer of the line
+        /** Number of nodes read from the first token in the graph string */
         int fileNumNodes = scanner.nextInt();
         setNumNodes(fileNumNodes);
-        System.out.println("numNodes: " + getNumNodes());
         
         // now set the number of nodes in the map 
         buildEmptyAdjacencyList(numNodes);
         
         // now fill out each vertex with it's adjacent nodes
+        /** Current string pair being processed, e.g., "(1,2)" */
         String stringPair = "";
+        /** Flag to control the parsing loop - true while there are more pairs to process */
         boolean pairsToParse = true;
         
         while (pairsToParse) {
@@ -162,7 +158,9 @@ public class GraphTraveler {
      */
     private int[] stringPairToIntPair(String stringPair) {
         stringPair = stringPair.replace("(", "").replace(")", "");
+        /** Array containing the two number strings after splitting on comma */
         String[] parts = stringPair.split(",");
+        /** Result array to hold the two parsed integers */
         int[] result = new int[2];
         result[0] = Integer.parseInt(parts[0]);
         result[1] = Integer.parseInt(parts[1]);
@@ -208,7 +206,6 @@ public class GraphTraveler {
 
 
 
-
     //------------------------------------------------------------
     // FINDING THE CLUSTERS 
     //------------------------------------------------------------
@@ -240,12 +237,14 @@ public class GraphTraveler {
      */
     private void findClustersInGraph() {
         for (int vertex = 1; vertex <= numNodes; vertex++) {
+            /** childNodes is the neighboring (connected) nodes of a given vertex */
             List<Integer> childNodes = adjacencySearchList.get(vertex);
             if (childNodes == null) continue; // if this is null, then the vertex
                                             // has already been put into a cluster
 
             // Otherwise this vertex hasn't been seen yet and should be added to a new cluster
             ArrayList<Integer> newCluster = new ArrayList<>();
+            /** newCluster is to keep track of new connected node clusters */
             newCluster.add(vertex);
             adjacencySearchList.remove(vertex);
             recursivelyAddChildNodes(childNodes, newCluster);
@@ -268,11 +267,16 @@ public class GraphTraveler {
      */
     public void travelMultipleGraphs(String filename) {
         // FIRST TURN THE FILE INTO A STRING 
+        /** graphsAsString is meant to represent all the graphs in a file as a string */
         String graphsAsString = "";
         try {
-            graphsAsString = saveInputFileAsString("SampleInput.txt");
+            graphsAsString = Files.readString(Paths.get(filename)); // Into a string
+                            // so that I can read the file, and then deal with each
+                            // graph one at a time 
         } catch (java.io.IOException e) {
-            e.printStackTrace();
+            System.out.println("Exiting");
+            System.out.println(e);
+            return;
         }
         
         // SECOND, TRAVERSE EACH GRAPH
@@ -285,4 +289,27 @@ public class GraphTraveler {
             printClusters();
         }
     }    
+
+
+    /**
+     * Entry point of the program.
+     * Determines the input filename, creates a GraphTraveler instance, 
+     * and processes multiple graphs from the input file.
+     * @param args Command-line arguments:
+     *             - If provided, args[0] should be the input filename.
+     *             - If not provided, a default filename ("SampleInput.txt") is used.
+     * @return void
+     */
+    public static void main(String[] args) {
+        // filename: stores the name of the input file to read graphs from
+        String filename;
+
+        if (args.length == 0) {
+            filename = "SampleInput.txt";
+        }
+        else filename = args[0];
+
+        GraphTraveler traveler = new GraphTraveler();
+        traveler.travelMultipleGraphs(filename);
+    }
 }
